@@ -1,76 +1,136 @@
-## :warning: Please read these instructions carefully and entirely first
-* Clone this repository to your local machine.
-* Use your IDE of choice to complete the assignment.
-* Use Javascript or preferably Typescript to complete the assignment, other languages will not be considered unfortunately.
-* When you have completed the assignment, you need to  push your code to a public repository and send the link via email.
-* Once you reply back to the email, your assignment will be considered completed. Please make sure that you have completed the assignment and pushed all code from your local machine to the repository before you reply.
-* There is no time limit for this task - however, for guidance, it is expected to typically take around 3-4 hours.
+A simple shopping cart implementation in JavaScript that provides basic shopping cart capabilities with integration to a Price API. 
 
-# Begin the task
+## Features
 
-Write some code that provides the following basic shopping cart capabilities:
+- Add products to cart with quantity
+- Automatic price fetching from Price API
+- Calculate cart subtotal, tax, and total
+- Handle multiple quantities of the same product
+- Proper rounding of monetary values
+- Error handling for invalid products
+- Full test coverage
 
-1. Add a product to the cart
-   1. Specifying the product name and quantity
-   2. Retrieve the product price by issuing a request to the the [Price API](#price-api) specified below
-   3. Cart state (totals, etc.) must be available
+## Installation
 
-2. Calculate the state:
-   1. Cart subtotal (sum of price for all items)
-   2. Tax payable (charged at 12.5% on the subtotal)
-   3. Total payable (subtotal + tax)
-   4. Totals should be rounded up where required
+1. Clone the repository:
+```bash
+git clone [your-repository-url]
+cd shopping-cart
+```
 
-## Price API
+2. Install dependencies:
+```bash
+npm install
+```
 
-The price API is an HTTP service that returns the price details for a product, identified by it's name. The shopping cart should integrate with the price API to retrieve product prices. 
+## Project Structure
 
-### Price API Service Details
+```
+shopping-cart/
+├── cart.js         # Main cart implementation
+├── cart.test.js    # Test suite
+├── index.js        # Example usage
+└── package.json    # Project configuration
+```
 
-Start the price API by running the following command: `npm run serve-products`
+## Usage
 
-Base URL: `http://localhost:3001/`
+### Starting the Price API
 
-View Product: `GET /products/{product}`
+Before using the cart, start the Price API server:
+```bash
+npm run serve-products
+```
 
-List of available products
-* `cheerios`
-* `cornflakes`
-* `frosties`
-* `shreddies`
-* `weetabix`
+The API will be available at `http://localhost:3001`
 
-## Example
-The below is a sample with the correct values you can use to confirm your calculations
+### Available Products
 
-### Inputs
-* Add 1 × cornflakes @ 2.52 each
-* Add another 1 x cornflakes @2.52 each
-* Add 1 × weetabix @ 9.98 each
-  
-### Results  
-* Cart contains 2 x cornflakes
-* Cart contains 1 x weetabix
-* Subtotal = 15.02
-* Tax = 1.88
-* Total = 16.90
+The following products are available in the Price API:
+- cheerios
+- cornflakes
+- frosties
+- shreddies
+- weetabix
 
-## Tips on what we’re looking for
+### Basic Usage
 
-* We value simplicity as an architectural virtue and as a development practice. Solutions should reflect the difficulty of the assigned task, and shouldn’t be overly complex.
-* We prefer simple, well tested solutions over clever solutions.
-* We will appreciate descriptive and unambiguous names for the concepts you introduce.
-* Atomic commits with descriptive messages will get you extra brownie points.
+```javascript
+const ShoppingCart = require('./cart');
 
-### DO
+async function runExample() {
+    const cart = new ShoppingCart();
+    
+    // Add products
+    await cart.addProduct('cornflakes', 1);
+    await cart.addProduct('cornflakes', 1);
+    await cart.addProduct('weetabix', 1);
+    
+    // Get cart state
+    console.log('Cart State:', cart.getCartState());
+}
 
-* ✅ Include unit tests.
-* ✅ Test both any client and logic.
-* ✅ Update the README.md with any relevant information, assumptions, and/or tradeoffs you would like to highlight.
-* ✅ Add some information on how the reviewer might test your solution.
+runExample().catch(console.error);
+```
 
-### DO NOT
+### Running Tests
 
-* ❌ Submit any form of app, such as web APIs, browser, desktop, or command-line applications.
-* ❌ Add unnecessary layers of abstraction.
-* ❌ Add unnecessary patterns/ architectural features that aren’t called for e.g. persistent storage.
+```bash
+npm test
+```
+
+## Implementation Details
+
+### Cart Class Methods
+
+- `addProduct(productName, quantity)`: Adds a product to the cart
+- `getCartContents()`: Returns current cart contents
+- `calculateSubtotal()`: Calculates cart subtotal
+- `calculateTax()`: Calculates tax (12.5%)
+- `calculateTotal()`: Calculates final total
+- `getCartState()`: Returns complete cart state
+
+### Example Output
+
+For the example scenario (1 × weetabix and 2 × cornflakes):
+
+```javascript
+{
+  contents: {
+    cornflakes: 2,
+    weetabix: 1
+  },
+  subtotal: 15.02,
+  tax: 1.88,
+  total: 16.90
+}
+```
+
+## Technical Choices
+
+1. **Data Structure**: Used `Map` for storing cart items for efficient lookups and updates
+2. **HTTP Client**: Used `axios` for reliable HTTP requests to the Price API
+3. **Testing**: Used `Jest` for testing with mocked API calls
+4. **Error Handling**: Comprehensive error handling for API failures and invalid products
+
+## Testing
+
+The test suite covers:
+- Product addition
+- Quantity accumulation
+- Price calculations
+- Error handling
+- Example scenario validation
+
+## Dependencies
+
+- axios: HTTP client for API requests
+- jest: Testing framework
+
+## Assumptions and Trade-offs
+
+1. Prices are assumed to be in the same currency
+2. Rounding is done up to 2 decimal places
+3. Tax rate is fixed at 12.5%
+4. No persistent storage as per requirements
+5. Single cart instance per use case
